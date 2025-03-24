@@ -1,9 +1,22 @@
-from os import path, cpu_count
+from os import path, cpu_count, write
 import platform
 import shutil
 
 # CONST
 FILE_PATH = "hellome.txt"
+
+
+def write_file(data):
+    if path.exists(FILE_PATH):
+        try:
+            with open(FILE_PATH, "w") as file:
+                for key, value in data.items():
+                    file.write(f"{key}: {value}\n")
+            print("File written successfully.")
+        except Exception as e:
+            print(f"An error occurred: {e}")
+    else:
+        print("File does not exists.")
 
 
 def read_file():
@@ -23,16 +36,20 @@ def read_file():
 
 
 def sys_info():
-    print(platform.system())
-    print(platform.node())
-    print(platform.release())
-    print(platform.version())
-    print(platform.machine())
-    print(platform.processor())
     total, used, free = shutil.disk_usage("/")
-    print(f"Total: {total // (2 ** 30)} GB")
-    print(f"Used: {used // (2 ** 30)} GB")
-    print(f"Free: {free // (2 ** 30)} GB")
+    sys_data = {
+        "system_name": platform.system(),
+        "system_host": platform.node(),
+        "system_release": platform.release(),
+        "system_version": platform.version(),
+        "system_machine": platform.machine(),
+        "system_processor": platform.processor(),
+        "system_total_storage": f"{total // (2 ** 30)} GB",
+        "system_used_storage": f"{used // (2 ** 30)} GB",
+        "system_free_storage": f"{free // (2 ** 30)} GB",
+    }
+    write_file(sys_data)
+    read_file()
 
 
 def cpu():

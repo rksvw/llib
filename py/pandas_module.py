@@ -1,52 +1,129 @@
 import pandas as pd
 
+
 # A table of data is stored as a pandas [DataFrame]
 # Each column in a [DataFrame] is a [Series]
-df = pd.DataFrame(
-    {
-        "Name": [
-            "Braund, Mr. Owen Harris",
-            "Allen, Mr. William Henry",
-            "Bonnell, Miss. Elizabeth",
-        ],
-        "Age": [22, 23, 58],
-        "Sex": ["male", "male", "female"],
-        "Profession": ["Software Engineer", "Software Programmer", "Game Developer"],
-    }
-)
+def basic_data():
+    df = pd.DataFrame(
+        {
+            "Name": [
+                "Braund, Mr. Owen Harris",
+                "Allen, Mr. William Henry",
+                "Bonnell, Miss. Elizabeth",
+            ],
+            "Age": [22, 23, 58],
+            "Sex": ["male", "male", "female"],
+            "Profession": [
+                "Software Engineer",
+                "Software Programmer",
+                "Game Developer",
+            ],
+        }
+    )
+
+    print(df)
+
+    print(df["Age"])
+
+    ages = pd.Series([22, 35, 58], name="Age")
+
+    print(ages)
+
+    print(ages.max())
+
+    print(df["Age"].max())
+
+    print(df.describe(), "\n\n")
 
 
-print(df)
+def read_csv_():
+    # Reading Tabular data
+    titanic = pd.read_csv("./titanic.csv")
 
-print(df["Age"])
+    # # Read the first 8 rows of titanic data
+    # print(titanic.head(3))
 
-ages = pd.Series([22, 35, 58], name="Age")
+    # # Read the last 8 rows of titanic data
+    # print(titanic.tail(3))
 
-print(ages)
+    # # Check column data types
+    # print(titanic.dtypes)
 
-print(ages.max())
-
-print(df["Age"].max())
-
-print(df.describe(), "\n\n")
+    titanic.to_excel("titanic.xlsx", sheet_name="passengers", index=False)
 
 
-# Reading Tabular data
-titanic = pd.read_csv("./titanic.csv")
+def read_excel_():
+    # Convert in spreadsheet form
 
-# Read the first 8 rows of titanic data
-print(titanic.head(3))
+    # Reading excel file
+    titanic_excel = pd.read_excel("titanic.xlsx", sheet_name="passengers")
+    sort_data(titanic_excel)
 
-# Read the last 8 rows of titanic data
-print(titanic.tail(3))
 
-# Check column data types
-print(titanic.dtypes)
+def create_d_data():
+    df = data = ["Name", "Age", "Profession", "College"]
+    pd.Series(data)
 
-# Convert in spreadsheet form
-titanic.to_excel("titanic.xlsx", sheet_name="passengers", index=False)
 
-# Reading excel file
-titanic_excel = pd.read_excel("titanic.xlsx", sheet_name="passengers")
-print(titanic_excel.head())
-print(titanic_excel.info())
+def create_dd_data():
+    df = pd.DataFrame(
+        {
+            "Name": [
+                "Braund, Mr. Owen Harris",
+                "Allen, Mr. William Henry",
+                "Bonnell, Miss. Elizabeth",
+            ],
+            "Age": [22, 23, 58],
+            "Sex": ["male", "male", "female"],
+            "Profession": [
+                "Software Engineer",
+                "Software Programmer",
+                "Game Developer",
+            ],
+        }
+    )
+
+    # Filter via Name
+    print(df["Name"])
+
+
+def head_five(data):
+    print(data.head(5))
+
+
+def tail_five(data):
+    print(data.tail(5))
+
+
+def info_data(data):
+    print(data.info())
+
+
+def describe_data(data):
+    print(data.describe())
+
+
+def get_rows_cols(data):
+    print(data.shape)
+
+
+def get_cols(data):
+    print(data.columns)
+
+
+def get_index(data):
+    print(data.index)
+
+
+# Read Rows wise data [row_1, row_5]
+def access_via_label(data):
+    print(data.loc[[1, 5]])
+
+
+def sort_data(data):
+    print(head_five(data.sort_values(by="Pclass")))
+    print(data.sort_index())
+    # head_five(data)
+
+
+read_excel_()

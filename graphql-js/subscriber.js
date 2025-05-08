@@ -12,3 +12,16 @@ export const subscribeToChat = (chatRoomId, callback) => {
     }
   });
 };
+
+export const subscribeToNotify = (notificationId, callback) => {
+  subscriber.subscribe(`notify:${notificationId}`);
+
+
+  subscriber.on("message", (channel, message) => {
+    if (channel === `notify:${notificationId}`) {
+      const data = JSON.parse(message);
+      console.log("New notification for abc123:", data);
+      callback(data);
+    }
+  });
+};

@@ -1,12 +1,13 @@
-import { PubSub } from "graphql-subscriptions";
+import pubsub from "./subscription/pubsub.js";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-const pubsub = new PubSub();
-
 const resolvers = {
   Query: {
+    async hello() {
+      "Hello World!";
+    },
     async blogPosts(parent, args, context, info) {
       const blgPosts = await prisma.blogPost.findMany();
 
@@ -51,11 +52,12 @@ const resolvers = {
       };
     },
     async addBlogPost(parent, args, context, info) {
-      const { title, body } = args;
+      const { title, body, userId } = args;
       const newBlogPost = await prisma.blogPost.create({
         data: {
           title,
           body,
+          userId,
         },
       });
 
@@ -65,6 +67,40 @@ const resolvers = {
         id: newBlogPost.id,
         title: newBlogPost.title,
         body: newBlogPost.body,
+      };
+    },
+    async newComment(parent, args, context, info) {
+      const { fromUser, comment, postId } = args;
+
+      const createComment = await prisma.comment.create({
+        data: { fromUser, comment, postId },
+      });
+
+      const findUserFromPost = await prisma.blogPost.findUnique({
+        where: { id: createComment.postId },
+        select: { userId: true },
+      });
+
+      const createNotification = await prisma.notification.create({
+        data: {
+          fromUser: createComment.fromUser,
+          toUser: findUserFromPost.userId,
+          type: "COMMENT_ON_POST",
+          isRead: false,
+          postId: postId,
+        },
+      });
+
+      pubsub.publish(`notify:${createNotification.toUser}`, {
+        activeNotify: createNotification,
+      });
+
+      return {
+        id: createComment.id,
+        fromUser,
+        comment,
+        createdAt: createComment.createdAt,
+        postId,
       };
     },
     async startChat(parent, args, context, info) {
@@ -119,7 +155,7 @@ const resolvers = {
       };
     },
     async sendMessage(parent, args, context, info) {
-      console.log(args)
+      console.log(args);
       const message = await prisma.message.create({
         data: {
           content: args.content,
@@ -145,7 +181,19 @@ const resolvers = {
     },
     onMessage: {
       subscribe: (_, { chatRoomId }) => {
-        return pubsub.asyncIterableIterator(`CHAT_${chatRoomId}`);
+        return pubsub.asyncIterator(`CHAT_${chatRoomId}`);
+      },
+    },
+    activeNotify: {
+      subscribe: (_, { userId }) => {
+        return pubsub.asyncIterator(`notify:${userId}`);
+      },
+      resolve: (payload) => {
+        // Make sure payload is not null and has required fields
+        if (!payload || !payload.activeNotify || !payload.activeNotify.id) {
+          throw new Error("Invalid payload for activeNotify subscription");
+        }
+        return payload.activeNotify;
       },
     },
   },

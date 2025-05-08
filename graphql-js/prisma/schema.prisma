@@ -13,8 +13,25 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Notification {
+  id       String   @id @default(uuid()) @db.Uuid
+  fromUser String   @db.Uuid
+  toUser   String   @db.Uuid
+  type     String
+  postId   String?  @db.Uuid
+  isRead   Boolean  @default(false)
+  notifyAt DateTime @default(now()) @db.Timestamp(6)
+
+  user1 User @relation("fromUser", fields: [fromUser], references: [id])
+  user2 User @relation("toUser", fields: [toUser], references: [id])
+
+  post BlogPost? @relation(fields: [postId], references: [id])
+
+  @@unique([fromUser, toUser])
+}
+
 model User {
-  id       String    @id @default(uuid()) @db.Uuid
+  id       String @id @default(uuid()) @db.Uuid
   username String @unique
   name     String
   email    String @unique
@@ -22,12 +39,37 @@ model User {
   Participant Participant[]
 
   Message Message[] @relation("UserMessages")
+
+  Notification1 Notification[] @relation("fromUser")
+
+  Notification2 Notification[] @relation("toUser")
+
+  Comment Comment[]
+
+  BlogPost BlogPost[]
+}
+
+model Comment {
+  id        String   @id @default(uuid()) @db.Uuid
+  fromUser  String   @db.Uuid
+  comment   String
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  postId    String   @db.Uuid
+
+  user User     @relation(fields: [fromUser], references: [id])
+  post BlogPost @relation(fields: [postId], references: [id])
 }
 
 model BlogPost {
-  id          String        @id @default(uuid()) @db.Uuid
-  title       String
-  body        String
+  id     String  @id @default(uuid()) @db.Uuid
+  userId String? @db.Uuid
+  title  String
+  body   String
+
+  Notification Notification[]
+  user         User?          @relation(fields: [userId], references: [id])
+
+  Comment Comment[]
 }
 
 model ChatRoom {
@@ -44,8 +86,8 @@ model Participant {
   userId     String @db.Uuid
   chatRoomId String @db.Uuid
 
-  user       User      @relation(fields: [userId], references: [id])
-  chatRoom   ChatRoom  @relation(fields: [chatRoomId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
+  chatRoom ChatRoom @relation(fields: [chatRoomId], references: [id])
 
   @@unique([userId, chatRoomId]) // Prevents duplicate participants
 }
@@ -57,6 +99,6 @@ model Message {
   senderId   String   @db.Uuid
   chatRoomId String   @db.Uuid
 
-  sender     User      @relation("UserMessages", fields: [senderId], references: [id])
-  chatRoom   ChatRoom  @relation(fields: [chatRoomId], references: [id])
+  sender   User     @relation("UserMessages", fields: [senderId], references: [id])
+  chatRoom ChatRoom @relation(fields: [chatRoomId], references: [id])
 }

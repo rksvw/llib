@@ -1,13 +1,14 @@
 import express from "express";
-import { ApolloServer } from "apollo-server-express";
+import http from "http";
 import cors from "cors";
-import { useServer } from "graphql-ws/use/ws";
 import typeDefs from "./typeDefs.js";
 import resolvers from "./resolvers.js";
-import { makeExecutableSchema } from "@graphql-tools/schema";
 import connectDB from "./prisma/db.js";
+
+import { ApolloServer } from "apollo-server-express";
+import { useServer } from "graphql-ws/use/ws";
+import { makeExecutableSchema } from "@graphql-tools/schema";
 import { WebSocketServer } from "ws";
-import http from "http";
 
 const app = express();
 app.use(cors());

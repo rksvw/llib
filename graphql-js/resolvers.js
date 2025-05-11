@@ -173,6 +173,18 @@ const resolvers = {
       });
       return message;
     },
+
+    async addTodo(parent, args, context, info) {
+      const {todo, isPriority, timer} = args;
+
+      const storeTodo = await prisma.todos.create({
+        data: {todo, isPriority, timer}
+      });
+
+      console.log(storeTodo);
+
+      return storeTodo;
+    }
   },
   Subscription: {
     newBlogPost: {

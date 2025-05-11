@@ -41,6 +41,14 @@ const typeDefs = gql`
     chatRoom: ChatRoom!
   }
 
+  type TodoManager {
+    id: String!
+    todo: String!
+    timer: String
+    createdAt: String
+    isPriority: Boolean
+  }
+
   type ChatRoom {
     id: String!
     isGroup: Boolean!
@@ -75,9 +83,15 @@ const typeDefs = gql`
     addBlogPost(userId: String, title: String, body: String): BlogPost
     createUser(name: String!, email: String!, username: String!): User
     startChat(targetUserId: String!, userId: String!): ChatRoom!
-    sendMessage(chatRoomId: String!,senderId: String!, content: String!): Message!
+    sendMessage(
+      chatRoomId: String!
+      senderId: String!
+      content: String!
+    ): Message!
     activateNotification(toUser: String!): Notification!
     newComment(fromUser: String!, comment: String!, postId: String!): Comment
+
+    addTodo(todo: String!, isPriority: Boolean, timer: String): TodoManager!
   }
 
   type Subscription {
